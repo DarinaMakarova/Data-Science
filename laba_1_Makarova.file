@@ -1,0 +1,75 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+df = pd.read_csv('train.csv', ',')
+pvt = df.pivot_table('PassengerId', 'Pclass', 'Survived', 'count')
+pvt.plot(kind = 'bar')
+plt.show()
+
+fig, axes = plt.subplots(ncols = 2)
+df.pivot_table('PassengerId', 'SibSp', 'Survived', 'count').plot(ax = axes[0])
+df.pivot_table('PassengerId', 'Parch', 'Survived', 'count').plot(ax = axes[1])
+plt.show()
+
+print('Count of row where Cabin is Null:')
+print(df.PassengerId[df.Cabin.notnull()].count())
+
+print('Count of row where Age is Null:')
+print(df.PassengerId[df.Age.notnull()].count())
+
+df.loc[df.Age.isnull(), 'Age'] = df.Age.median()
+
+MaxPassEmbarked = df.groupby('Embarked').count()['PassengerId']
+df.loc[df.Embarked.isnull(), 'Embarked'] = MaxPassEmbarked[MaxPassEmbarked == MaxPassEmbarked.max()].index[0]
+
+print('Count of row where Fare is Null:')
+print(df.PassengerId[df.Fare.isnull()].count())
+
+df = df.drop(['PassengerId','Name','Ticket','Cabin'], axis=1)
+
+#Вариант 1
+
+print('Количество пассажиров мужского пола из 1 класса:')
+print(df.Pclass[df.Sex == 'male'][df.Pclass == 1].count())
+
+
+#Вариант 2
+
+print('Количество детей (младше 14) из 2 класса:')
+print(df.Pclass[df.Age <= 14][df.Pclass == 1].count())
+
+#Вариант 3
+
+print('Количество одиноких пассажиров:')
+print(df.Pclass[df.Parch == 0].count())
+
+#Вариант 4
+
+print('количество пассажиров, севших в порту Queenstown с дорогими билетами (ценна выше средней):')
+print(df.Fare[df.Embarked == 'Q'][df.Fare > df.Fare.median()].count())
+
+#Вариант 5
+
+print('Cредний возраст пассажиров женского пола:')
+print(df.Age[df.Sex == 'female'].median())
+
+#Вариант 6
+
+print('количество одиноких пожилых людей(старше 65):')
+print(df.Age[df.Parch == 0][df.Age >= 65].count())
+
+#Вариант 7
+
+print('Статистика по детям (младше 14 лет):')
+print(df[df.Age <= 14])
+
+#Вариант 8
+
+print('Средняя цена билета по портам:')
+print(df.groupby('Embarked')['Fare'].median())
+
+
+#Вариант 9
+
+print('Средняя цена билета для каждого социального класса:')
+df.groupby('Pclass')['Fare'].median()
+
